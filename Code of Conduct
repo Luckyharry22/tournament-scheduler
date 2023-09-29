@@ -1,0 +1,185 @@
+Problem Statement:
+The objective is to devise a schedule for a specified number of teams in order to facilitate a tournament.
+Every team competes against each and every other team precisely twice, once at each of the teams’ home grounds.
+The competition aims to minimise the duration in terms of the number of days needed.
+Each squad is limited to playing a maximum of one match per two days.
+
+Overview of the Code:
+The Python code comprises three primary classes:
+The `MatchList` class is responsible for storing a comprehensive list of all matches that have taken place between every team.
+The `List` class is a commonly used data structure that serves as a general tool for managing matches for a certain day and keeping track of the remaining matches.
+The graph is a visual representation that depicts matches as nodes and establishes connections between matches having common teams through edges.
+
+The following is a description of the algorithm used in this study.
+The tournament scheduling algorithm employs a greedy strategy in order to arrange matches. The initial step involves generating a comprehensive roster of potential matchups among teams, guaranteeing that each team competes against every other team precisely once. The technique proceeds by creating a network in which matches are depicted as nodes, and edges connect matches that share at least one team.
+The primary stages of the algorithm are outlined below:
+1.	Compile a comprehensive inventory of all matches.
+2.	Construct a graphical representation wherein each match is represented as a node, and edges are established between consecutive matches.
+3.	The matches should be iterated through, with the objective of arranging matches for each day in a manner that guarantees no team plays more than once on any given day.
+4.	Proceed with the scheduling process until all matches have been successfully booked.
+
+Methodology:
+	The issue of arranging a tournament can be converted into a graph colouring problem by the utilisation of a graph representation, where each game to be conducted is depicted as a node inside the graph. The connections or edges inside the graph should establish relationships between nodes in a manner that, in a legitimate graph colouring, each distinct colour signifies a grouping of games that may be arranged to take place on a single day, ensuring that no team participates in more than one game on that particular day. The process of transformation entails the construction of a network wherein individual nodes represent games, namely matches between two teams. The edges inside this graph establish connections between games that can be feasibly scheduled together, without any conflicts arising among the participating teams.
+Below is a comprehensive breakdown of the transformation process for a basic example including three teams (n = 3):
+
+1. The first step in the process is to generate nodes for matches.
+•	There are three matches involving three teams, namely Team A, Team B, and Team C. These matchups are as follows: Team A vs Team B, Team A vs Team C, and Team B vs Team C.
+•	A node should be generated in the graph for each of the aforementioned matches. Overall, there will be a total of three nodes that symbolise the matches.
+
+2. Establish Connections:
+•	The objective is to establish connections between nodes (referred to as matches) by means of edges, taking into consideration the feasibility of scheduling them on the same day without any conflicts arising among the teams involved.
+•	In the context of a round-robin event, it is imperative that every participating team engages in a single match per day. Hence, it is possible to schedule together any two matches that do not have any teams in common.
+•	For instance, it is possible to plan matches (A vs. B) and (B vs. C) concurrently, as there is no overlap in team participation between these two matches on any given day.
+•	Likewise, it is possible to schedule (A vs. C) and (B vs. C) concurrently.
+•	However, scheduling both (A vs. B) and (A vs. C) concurrently is not feasible due to the fact that Team A would be required to participate in two matches on the same day.
+
+3. Representation of Graphs.
+•	The graph now depicts the connections and associations between the matches. Every individual node in the system represents a specific match, while the edges serve to establish connections between matches that have the potential to be scheduled simultaneously.
+•	The aim of this task is to identify a legitimate colouring scheme for the given graph, wherein each colour corresponds to a grouping of games that can be feasibly scheduled on the same day.
+
+4. The concept of graph colouring refers to the assignment of colours to the vertices of a graph such that no two adjacent vertices share the same colour.
+•	Utilise a graph colouring technique to assign colours to the nodes (representing matches) in a manner that ensures no two connected nodes share the same colour (i.e., games planned on the same day do not involve any common teams).
+•	The quantity of colours employed in the process of colouring will ascertain the duration required to arrange all the matching.
+
+Let's illustrate this transformation for n = 3 with a simple example:
+•	The matches as follows: (A vs. B), (A vs. C), and (B vs. C).
+•	The representation of data using graphs.
+
+In this instance, the graphical representation depicts the connections and associations among the matches. The presence of edges connecting matches signifies the feasibility of scheduling them concurrently, without any potential conflicts among the teams involved. In order to obtain a correct colouring, one may employ a graph colouring algorithm. In this particular scenario, it is necessary to utilise a minimum of two distinct colours in order to visually depict the matches that have been arranged on two distinct days.
+
+This conversion enables the utilisation of graph colouring methods for the purpose of effectively arranging tournament matches, while also guaranteeing that each team participates in no more than one match each day.
+
+1.	The initial step involves generating a comprehensive inventory of all the matches.
+This step involves the establishment of a MatchList class, which serves the purpose of generating a comprehensive list encompassing all potential match pairings among teams.
+The pseudocode representation of the class is as follows:
+class MatchList:
+def __init__(self, size):
+# Initialize the size of the match list
+self.size = size
+
+# Calculate the total number of matches
+match_size = (size * (size-1))
+offset = int((size * (size-1)) / 2)
+
+# Initialize the match list with placeholders
+self.map = [(None,None)] * match_size
+
+i = 0
+for j in range(1, size):
+for k in range(j+1, size+1):
+# Create pairs of teams for matches
+self.map[i] = (j, k)
+self.map[i+offset] = (k, j)
+i += 1
+
+The purpose of this course is to generate a comprehensive schedule of matches, guaranteeing that every pair of teams competes against each other precisely once.
+
+2.	The second step involves the creation of a graphical representation depicting the matches.
+Subsequently, we proceed to develop the definition of a Graph class, which serves the purpose of representing the matches as nodes and establishing connections between consecutive matches through edges.
+The pseudocode representation of the class is as follows:
+class Graph:
+def __init__(self, nodes_size, match_map):
+# Initialize the size of the graph
+self.size = nodes_size
+
+# Initialize the adjacency matrix
+self.adjacency_list = [[0 for i in range(nodes_size)] for j in range(nodes_size)]
+
+def create_edges_between_consequent__matches(self, match_map):
+for i in range(self.size):
+for j in range(self.size):
+# Check if matches have at least one team in common
+if match_map.is_consequent(i, j) == True:
+self.adjacency_list[i][j] = 1
+else:
+self.adjacency_list[i][j] = 0
+
+The present course facilitates the construction of a graphical representation wherein each match is represented as a node, and the edges of the graph symbolise matches that share at least one team in common.
+
+3.	The next step in the process is to execute the Greedy Scheduling Algorithm.
+A greedy algorithm is employed in order to schedule matches with the dual objectives of minimising the total number of days required and guaranteeing fairness.
+The pseudocode representation of the scheduling algorithm is as follows:
+def GreedyAlgorithm(g, match_size, match_index):
+remaining_match_count = match_size
+tournament_sequence = []
+remaining_matches = List(match_size, 1)
+
+while(remaining_match_count > 0):
+cur_day_matches = []
+temp = List(match_size, -1)
+idx = 0
+
+cur_match = remaining_matches.find_next_match()
+cur_day_matches.append(match_index.map[cur_match])
+
+remaining_match_count -= 1
+
+temp.list[idx] = cur_match
+idx += 1
+
+g.set_col(cur_match)
+
+for i in range(match_size):
+if g.adjacency_list[cur_match][i] == 0 and not OccuringInList(match_index, idx, temp, i):
+cur_day_matches.append(match_index.map[i])
+temp.list[idx] = i
+idx += 1
+remaining_matches.list[i] = 0
+remaining_match_count -= 1
+g.set_col(i)
+
+tournament_sequence.append(cur_day_matches)
+
+return tournament_sequence
+The method employed in this process facilitates the scheduling of matches on a daily basis, so guaranteeing that no team participates in more than one match on any given day, while also assuring that each team competes against every other team precisely once.
+
+4.	The fourth step in the process involves the user providing input and the subsequent execution of the programme.
+Ultimately, the user is prompted to provide the number of teams, which is then utilised to initiate the algorithm responsible for generating the schedule for the event.
+
+
+Result & Observation
+It is evident that an inclination towards engaging in a discourse over the outcomes and observations derived by the tournament scheduling method. 
+
+The present study presents an analysis of the outcomes and observations derived from several tournament scheduling algorithms.
+
+1.	“Fairness in match distribution” - The basic objective of a tournament scheduling algorithm is to guarantee equitable distribution of matches. It is important to note that each team participates in an equitable number of matches, ensuring that neither team possesses a competitive advantage in terms of match count.
+
+2.	“Distinct Pairings:” - The algorithm guarantees that every pair of teams engages in a match against each other just once. It is important to note that each team does not encounter the same opponent more than once.
+
+3.	“Optimal Scheduling:” - The approach generally aims to minimise the duration of the tournament while maintaining fairness restrictions. It can be observed that the algorithm effectively arranges matches within the smallest feasible timeframe.
+
+4.	“Efficiency:” - The efficiency of the algorithm may vary depending on the number of teams involved. In the case of a limited number of teams, the system should exhibit prompt functionality and yield near-instantaneous outcomes. Nevertheless, the execution time of the algorithm may experience a substantial increase for a considerable number of teams.
+
+5.	“Avoiding Team Overload:” - The algorithm should provide measures to mitigate instances where a team is required to participate in several matches within a single day. It is recommended that each squad participate in a single match per day.
+
+6.	“Variability in schedule” - It is evident that the algorithm produces varying timetables in response to alterations in the number of teams. The observed fluctuation can be attributed to the scheduling algorithm's endeavour to achieve an equitable distribution of matches.
+
+7.	“Representation of Graph:” - Upon examination of the graph representation depicting the matches and subsequent matches, it becomes evident that it guarantees the scheduling of matches on separate days for teams who share common opponents.
+
+8.	“Dependence on Input Size:” - The execution time and computational complexity of the method are contingent upon the size of the input, namely the number of teams. Tournaments of greater magnitude, characterised by an increased number of participating teams, inherently entail a lengthier scheduling process.
+
+9.	“Successful Execution:” - The absence of errors or crashes during the execution of the code signifies that the algorithm is capable of processing the provided input and generating a proper tournament schedule.
+
+10.	“Verification:” - In order to ascertain the accuracy of the scheduling algorithm, it is possible to conduct a human verification process to confirm that every team competes against each other precisely once and that the timetable aligns with principles of fairness.
+
+
+Conclusion
+
+The algorithm employs a greedy methodology and seeks to accomplish the subsequent objectives:
+
+1.	“Equity”: The algorithm guarantees that every team engages in a match against each of the other teams twice, once at each of the teams’ home grounds, hence upholding equitable allocation of matches.
+
+2.	“Optimal Scheduling”: The objective of optimal scheduling is to minimise the duration of the tournament while maintaining fairness restrictions, hence producing an efficient tournament schedule.
+
+3.	“Mitigation of Team Overload”: The algorithm effectively mitigates the occurrence of several matches being assigned to a single team on a given day, so guaranteeing that teams are provided with a schedule that is acceptable in nature.
+
+The following are the main findings derived from the code and algorithm:
+	The code has three primary classes, namely `MatchList`, `List`, and `Graph`. These classes collaborate in order to generate a timetable for a tournament.
+
+	The `MatchList` class is responsible for generating a comprehensive list of all potential matches between teams. On the other hand, the `Graph` class is designed to represent these matches in the form of nodes and edges, where each node corresponds to a match and the edges connect subsequent matches.
+
+	The scheduling algorithm employs a greedy strategy to arrange matches on a daily basis, with the objective of preventing teams with shared opponents from competing on the same day.
+
+	The user is provided with a prompt to input the number of teams, and subsequently, the algorithm constructs a tournament sequence. This series is then displayed on the screen for the user's observation.
+
+	The successful execution of the code should yield a tournament schedule that adheres to the 
