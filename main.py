@@ -1,6 +1,4 @@
 # Name: Harmeet Singh
-# Roll number: 2023EET2189
-
 
 
 
